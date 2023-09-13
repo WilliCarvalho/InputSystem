@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 
 public class PlayerBehaviour : MonoBehaviour
@@ -10,10 +7,17 @@ public class PlayerBehaviour : MonoBehaviour
     private CharacterControls characterControls;
 
     private Rigidbody2D rigidbody;
+
     private Vector2 movementDirection;
+
+    private int numberOfJumps = 0;
+
+    [HideInInspector] public int acornsCollected = 0;
 
     [SerializeField] private float velocity;
     [SerializeField] private float jumpForce;
+    [SerializeField] private int maxNumberOfJumps = 2;
+    [SerializeField] private int numberOfAcornToWin = 4;
 
     private void Awake()
     {
@@ -31,15 +35,18 @@ public class PlayerBehaviour : MonoBehaviour
     private void Update()
     {
         MovePlayer();
+        CheckVictory();
     }
+
 
     private void JumpPlayer(InputAction.CallbackContext context)
     {
         bool isJumpPressed = context.ReadValueAsButton();
 
-        if (isJumpPressed)
+        if (isJumpPressed && numberOfJumps < maxNumberOfJumps)
         {
             rigidbody.AddForce(Vector2.up * jumpForce);
+            numberOfJumps++;
         }
     }
 
@@ -51,6 +58,18 @@ public class PlayerBehaviour : MonoBehaviour
     private void ReceiveMovePlayerInput(InputAction.CallbackContext context)
     {
         movementDirection.x = context.ReadValue<float>();
+    }
+    private void CheckVictory()
+    {
+        if(acornsCollected >= numberOfAcornToWin)
+        {
+            print("PARABÉNS! VOCÊ VENCEU!");
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        numberOfJumps = 0;
     }
 
     private void OnEnable()
